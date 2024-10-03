@@ -10,9 +10,17 @@ const {
 const validateProjectData = require("../middlewares/validateProjectData");
 const upload = require("../middlewares/upload");
 
+const verifyToken = require("../middlewares/authMiddleware");
+
 const router = express.Router();
 
-router.post("/", upload.single("image"), validateProjectData, createProject);
+router.post(
+  "/",
+  upload.single("image"),
+  validateProjectData,
+  verifyToken,
+  createProject
+);
 router.get("/:id", getProject);
 router.get("/", getProjects);
 router.patch(

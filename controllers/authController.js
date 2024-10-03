@@ -1,60 +1,59 @@
-// backend/controllers/authController.js
-const admin = require("../utils/firebaseAdmin");
-const { createToken } = require("../utils/jwt");
+const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
-// Register user (or login) using Firebase token and generate JWT
 const registerUser = async (req, res) => {
-  const { token } = req.body; // Firebase token from frontend
+  const { email, password } = req.body;
+  if (!email || !password) {
+    // Return an error if email or password are missing
+    return res.status(400).json({ message: "Email and password are required" });
+  }
 
   try {
-    // Validate Firebase token using Firebase Admin SDK
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    const { email, uid } = decodedToken;
+    const userModel = new User(); // Create an instance of the User class
+    const existingUser = await userModel.findUserByEmail(email);
 
-    // Check if the user already exists in your database
-    const user = await User.findByEmail(email);
-    if (!user) {
-      // If user does not exist, create a new user in MongoDB
-      const newUser = { email, uid };
-      await User.createUser(newUser);
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
     }
+    const newUser = await userModel.createUser({ email, password });
 
-    // Generate JWT for the user
-    const jwtToken = createToken({ email, uid });
+    // Generate jwt token
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+    console.log("Generated token", token);
 
-    // Send the JWT token back to the frontend
-    res.status(201).json({ token: jwtToken });
+    // Remove password from the user object before sending response
+    const { password: _, ...userWithoutPassword } = newUser;
+    // Send back the token and user data
+    res.status(201).json({
+      token, //Include the jwt token in the response,
+      user: userWithoutPassword,
+    });
   } catch (error) {
-    console.error("Error in registering user:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 };
 
-// Login user (similar to registerUser, but for login)
 const loginUser = async (req, res) => {
-  const { token } = req.body; // Firebase token from frontend
+  const { email, password } = req.body;
 
   try {
-    // Validate Firebase token
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    const { email, uid } = decodedToken;
+    const userModel = new User(); // Create an instance of the User class
+    const user = await userModel.findUserByEmail(email);
 
-    // Check if the user exists
-    const user = await User.findByEmail(email);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (!user || user.password !== password) {
+      // Simplified password check
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT
-    const jwtToken = createToken({ email, uid });
-    console.log("JWT", jwtToken);
-
-    // Send the JWT token back to the frontend
-    res.status(200).json({ token: jwtToken });
+    // Generate JWT or any other logic
+    res.status(200).json({ message: "Login successful", user });
   } catch (error) {
-    console.error("Error in login:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: error.message });
   }
 };
 

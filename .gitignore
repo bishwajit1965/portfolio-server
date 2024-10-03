@@ -1,5 +1,4 @@
 .env
 uploads
-secret
 node_modules
 mongoose

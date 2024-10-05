@@ -34,6 +34,15 @@ class User {
     }
   }
 
+  async getAllUsers() {
+    try {
+      const users = await this.collection.find().toArray();
+      return users;
+    } catch (error) {
+      throw new Error("Error in finding users", error.message);
+    }
+  }
+
   async updateUser(id, updateData) {
     try {
       const result = await this.collection.updateOne(
@@ -43,6 +52,19 @@ class User {
       return result.modifiedCount > 0; // Return true if update was successful
     } catch (error) {
       throw new Error("Error updating user: " + error.message);
+    }
+  }
+
+  // Update user role or other fields
+  async updateUserRole(id, role) {
+    try {
+      const result = await this.collection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { role: role } } // Update role field
+      );
+      return result.modifiedCount > 0;
+    } catch (error) {
+      throw new Error("Error updating user role: " + error.message);
     }
   }
 

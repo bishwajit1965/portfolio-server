@@ -5,9 +5,9 @@ const getAllUsers = async (req, res) => {
   try {
     const userModel = new User();
     const users = await userModel.getAllUsers();
-    res.status(200).json(users);
+    res.status(200).json({ success: true, data: users });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching users" });
+    res.status(500).json({ success: false, message: "Failed to fetch users" });
   }
 };
 
@@ -18,14 +18,16 @@ const updateUserRole = async (req, res) => {
 
   try {
     const userModel = new User();
-    const success = await userModel.updateUser(id, role);
-    if (success) {
-      res.status(200).json({ message: "Role updated successfully" });
+    const updatedUser = await userModel.updateUser(id, role);
+    if ((updatedUser, modifiedCount > 0)) {
+      res
+        .status(200)
+        .json({ success: true, message: "Role updated successfully" });
     } else {
-      res.status(400).json({ message: "Failed to update role" });
+      res.status(404).json({ success: false, message: "User not found" });
     }
   } catch (error) {
-    res.status(500).json({ message: "Error updating role" });
+    res.status(500).json({ success: false, message: "Failed to update role" });
   }
 };
 

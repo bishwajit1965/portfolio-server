@@ -11,6 +11,7 @@ const router = express.Router();
 
 // Route to get all users (accessible by super-admin)
 router.get("/", verifyRole("super-admin"), getAllUsers);
+router.get("/", getAllUsers);
 
 // Route to update user role (accessible by super-admin)
 router.patch("/:id/role", verifyRole("super-admin"), updateUserRole);

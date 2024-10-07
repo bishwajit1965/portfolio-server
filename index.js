@@ -3,7 +3,6 @@ const path = require("path");
 require("dotenv").config();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const verifyToken = require("./middlewares/authMiddleware");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -24,6 +23,7 @@ const { connectDB, getDB } = require("./utils/database");
     const db = getDB(); //Gets the connected database instance
 
     // Import the routes here
+    const adminRoutes = require("./routes/adminRoutes");
     const authRoutes = require("./routes/authRoutes");
     const projectRoutes = require("./routes/projectRoutes");
     const contactRoutes = require("./routes/contactRoutes");
@@ -38,9 +38,9 @@ const { connectDB, getDB } = require("./utils/database");
     const featuredProjectRoutes = require("./routes/featuredProjectRoutes");
     const journeyMilestonesRoutes = require("./routes/journeyMilestonesRoutes");
     const validateCopyrightMiddlewareRules = require("./routes/copyrightTextRoutes");
-    const adminRoutes = require("./routes/adminRoutes");
 
     // Initialize your routes here
+    app.use("/api/admin", adminRoutes);
     app.use("/api/auth", authRoutes); // Authentication routes
     app.use("/api/projects", projectRoutes);
     app.use("/api/contacts", contactRoutes);

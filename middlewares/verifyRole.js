@@ -1,3 +1,14 @@
+// const verifyRole = (requiredRole) => {
+//   return (req, res, next) => {
+//     if (req.user.role !== requiredRole) {
+//       return res.status(403).json({ message: "Forbidden: Insufficient role" });
+//     }
+//     next(); // Proceed if role matches
+//   };
+// };
+
+// module.exports = verifyRole;
+
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 

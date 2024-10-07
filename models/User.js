@@ -36,18 +36,18 @@ class User {
 
   async getAllUsers() {
     try {
-      const users = await this.collection.find().toArray();
+      const users = await this.collection.find({}).toArray();
       return users;
     } catch (error) {
       throw new Error("Error in finding users", error.message);
     }
   }
 
-  async updateUser(id, updateData) {
+  async updateUserRole(id, role) {
     try {
       const result = await this.collection.updateOne(
         { _id: new ObjectId(id) },
-        { $set: updateData }
+        { $set: role }
       );
       return result.modifiedCount > 0; // Return true if update was successful
     } catch (error) {
